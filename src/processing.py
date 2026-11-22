@@ -146,6 +146,7 @@ class DataProcessor:
                 users=('user_id', 'nunique'),
                 it_two=('it_two', 'mean'))
             .sort_values(by='users', ascending=False)
+            .head(10)
         )
 
         result['it_two'].plot(
@@ -260,3 +261,75 @@ class DataProcessor:
         plt.show()
 
         return total_orders_corr
+
+    def print_report(self, tmp, profiles, event_retention, device_retention,
+                     region_retention, correlations):
+
+        print('Общий вывод и рекомендации:\n')
+
+        print(
+            f'В ходе работы было проанализировано {len(tmp)} записей '
+            f'и {tmp.shape[1]} колонок.'
+        )
+
+        print(
+            f'Количество пользователей: {profiles["user_id"].nunique()}'
+        )
+
+        print(
+            f'Доля повторных покупателей: {profiles["it_two"].mean():.2%}'
+        )
+
+        best_region = region_retention.sort_values(
+            'it_two', ascending=False
+        ).iloc[0]
+
+        print(
+            f'\nРегион с наибольшей долей повторных покупок: '
+            f'{best_region["first_region"]} '
+            f'({best_region["it_two"]:.2%})'
+        )
+
+        best_event = event_retention.sort_values(
+            'it_two', ascending=False
+        ).iloc[0]
+
+        print(
+            f'Категория с наибольшей долей повторных покупок: '
+            f'{best_event["first_event_type"]} '
+            f'({best_event["it_two"]:.2%})'
+        )
+
+        best_device = device_retention.sort_values(
+            'it_two', ascending=False
+        ).iloc[0]
+
+        print(
+            f'Устройство с наибольшей долей повторных покупок: '
+            f'{best_device["first_device"]} '
+            f'({best_device["it_two"]:.2%})'
+        )
+
+        strongest_feature = correlations.index[0]
+
+        print(
+            f'\nПризнак с наиболее сильной связью с количеством заказов: '
+            f'{strongest_feature}'
+        )
+
+        print('\nРекомендации:')
+
+        print(
+            '- Использовать сегменты с высокой долей повторных покупок '
+            'для поиска успешных маркетинговых сценариев.'
+        )
+
+        print(
+            '- Для сегментов с низкой долей повторных покупок '
+            'проверить эффективность персональных предложений.'
+        )
+
+        print(
+            '- Проверять гипотезы о влиянии категорий, регионов '
+            'и устройств с помощью экспериментов.'
+        )
